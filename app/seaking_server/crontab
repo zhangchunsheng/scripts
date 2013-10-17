@@ -4,6 +4,7 @@ MAILTO=root
 HOME=/
 
 # For details see man 4 crontabs
+#  /var/spool/cron/seaking
 
 # Example of job definition:
 # .---------------- minute (0 - 59)
