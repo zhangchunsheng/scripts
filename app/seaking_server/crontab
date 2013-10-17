@@ -15,5 +15,11 @@ HOME=/
 # |  |  |  |  |
 # *  *  *  *  * user-name command to be executed
 
+# run-parts
+01 * * * * root run-parts /etc/cron.hourly
+02 4 * * * root run-parts /etc/cron.daily
+22 4 * * 0 root run-parts /etc/cron.weekly
+42 4 1 * * root run-parts /etc/cron.monthly
+
 # * * * * * su seaking -c /home/wozlla/redis-2.6.14/nodeprocess.sh
 * * * * * seaking /home/wozlla/redis-2.6.14/nodeprocess.sh
