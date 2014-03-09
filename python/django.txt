@@ -150,3 +150,6 @@ Unable to open logs
 
 
 Tornado is a Python web framework and asynchronous networking library
+
+site-packages directory
+python -c "import sys; sys.path = sys.path[1:]; import django; print(django.__path__)"
