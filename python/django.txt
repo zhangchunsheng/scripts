@@ -1,0 +1,152 @@
+2014-03-09
+centos apache python
+
+gae python framework
+Django, CherryPy, Pylons, web.py, and web2py
+
+centos python easy_install
+yum install python-setuptools
+yum install python-setuptools-devel
+
+centos wsgi
+https://library.linode.com/frameworks/django-apache-mod-wsgi/centos-5
+yum install python-setuptools httpd mod_wsgi
+yum install postgresql python-psycopg2
+yum install sqlite python-sqlite
+yum install python-devel mysql-devel gcc wget python-setuptools
+
+cd /opt/
+wget http://downloads.sourceforge.net/project/mysql-python/mysql-python/1.2.3/MySQL-python-1.2.3.tar.gz
+tar -zxvf MySQL-python-1.2.3.tar.gz
+cd MySQL-python-1.2.3/
+python setup.py build
+python setup.py install
+
+yum install Django
+easy_install Django
+
+/var/www/wsgi/django.wsgi
+import os
+import sys
+
+sys.path.append('/var/www/wsgi/')
+
+os.environ['PYTHON_EGG_CACHE'] = '/var/www/wsgi/.python-egg'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'settings'
+
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()
+
+<VirtualHost ducklington.org:80>
+   ServerName ducklington.org
+   ServerAlias www.ducklington.org
+   ServerAdmin squire@ducklington.org
+
+   DocumentRoot /srv/www/ducklington.org/public_html
+
+   WSGIScriptAlias / /srv/www/ducklington.org/application/django.wsgi
+   <Directory /srv/www/ducklington.org/application>
+      Order allow,deny
+      Allow from all
+   </Directory>
+
+   Alias /robots.txt /srv/www/ducklington.org/public_html/robots.txt
+   Alias /favicon.ico /srv/www/ducklington.org/public_html/favicon.ico
+   Alias /images /srv/www/ducklington.org/public_html/images
+   Alias /static /srv/www/ducklington.org/public_html/static
+
+   ErrorLog /srv/www/ducklington.org/logs/error.log
+   CustomLog /srv/www/ducklington.org/logs/access.log combined
+</VirtualHost>
+
+<VirtualHost 222.126.242.105:8080>
+   ServerName 222.126.242.105
+   ServerAlias 222.126.242.105
+
+   DocumentRoot /var/www/wsgi
+
+   WSGIScriptAlias / /var/www/wsgi/django.wsgi
+   <Directory /var/www/wsgi>
+      Order allow,deny
+      Allow from all
+   </Directory>
+
+   Alias /robots.txt /var/www/wsgi/robots.txt
+   Alias /favicon.ico /var/www/wsgi/favicon.ico
+   Alias /images /var/www/wsgi/images
+   Alias /static /var/www/wsgi/static
+
+   ErrorLog /var/www/wsgi/logs/error.log
+   CustomLog /var/www/wsgi/logs/access.log combined
+</VirtualHost>
+
+WSGIScriptAlias /wsgi/ /var/www/wsgi/django.wsgi
+<Directory /var/www/wsgi>
+	Order allow,deny
+	Allow from all
+</Directory>
+
+etc/httpd/conf.d/wsgi.conf
+LoadModule wsgi_module modules/mod_wsgi.so
+
+/etc/init.d/httpd restart
+
+centos apache wsgi
+
+python -c "import django; print(django.get_version())"
+
+
+
+https://code.google.com/p/modwsgi/wiki/ConfigurationGuidelines
+def application(environ, start_response):
+    status = '200 OK'
+    output = 'Hello World!'
+
+    response_headers = [('Content-type', 'text/plain'),
+                        ('Content-Length', str(len(output)))]
+    start_response(status, response_headers)
+
+    return [output]
+	
+	
+ImportError: Could not import settings 'settings'
+import os
+import sys
+
+sys.path.append('/var/www/wsgi')
+
+os.environ['PYTHON_EGG_CACHE'] = '/var/www/wsgi/.python-egg'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
+
+import django.core.handlers.wsgi
+application = django.core.handlers.wsgi.WSGIHandler()
+
+
+django-admin.py startproject mysite
+
+[Sun Mar 09 00:23:07 2014] [error] [client 114.241.24.202] File does not exist: /var/www/html/wsgi
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202] mod_wsgi (pid=13146): Exception occurred processing WSGI script '/var/www/wsgi/django.wsgi'.
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202] Traceback (most recent call last):
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]   File "/usr/lib/python2.6/site-packages/Django-1.6.2-py2.6.egg/django/core/handlers/wsgi.py", line 187, in __call__
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]     self.load_middleware()
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]   File "/usr/lib/python2.6/site-packages/Django-1.6.2-py2.6.egg/django/core/handlers/base.py", line 46, in load_middleware
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]     for middleware_path in settings.MIDDLEWARE_CLASSES:
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]   File "/usr/lib/python2.6/site-packages/Django-1.6.2-py2.6.egg/django/conf/__init__.py", line 54, in __getattr__
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]     self._setup(name)
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]   File "/usr/lib/python2.6/site-packages/Django-1.6.2-py2.6.egg/django/conf/__init__.py", line 49, in _setup
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]     self._wrapped = Settings(settings_module)
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]   File "/usr/lib/python2.6/site-packages/Django-1.6.2-py2.6.egg/django/conf/__init__.py", line 132, in __init__
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202]     % (self.SETTINGS_MODULE, e)
+[Sun Mar 09 00:23:12 2014] [error] [client 114.241.24.202] ImportError: Could not import settings 'settings' (Is it on sys.path? Is there an import error in the settings file?): No module named settings
+[Sun Mar 09 00:28:29 2014] [error] [client 114.241.24.202] Target WSGI script not found or unable to stat: /var/www/wsgi/django.wsgiindex.py
+[Sun Mar 09 00:28:34 2014] [error] [client 114.241.24.202] Target WSGI script not found or unable to stat: /var/www/wsgi/django.wsgiindex.py
+[Sun Mar 09 00:42:50 2014] [notice] SIGHUP received.  Attempting to restart
+(2)No such file or directory: httpd: could not open error log file /var/www/wsgi/logs/error.log.
+Unable to open logs
+(2)No such file or directory: httpd: could not open error log file /var/www/wsgi/logs/error.log.
+Unable to open logs
+
+
+
+
+Tornado is a Python web framework and asynchronous networking library
